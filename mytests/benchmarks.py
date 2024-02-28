@@ -1,33 +1,33 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Feb 28 16:13:50 2024
-
-@author: anilcaneldiven
-"""
-
 import pytest
-from customOptimizer import NewtonOptimizer
-from sklearn.datasets import load_iris
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
+from tensorflow.keras.optimizers import SGD
+from customOptimizer import NewtonOptimizer
+from sklearn.datasets import load_iris
+from customOptimizer import NewtonOptimizer
+from tensorflow.keras.utils import get_custom_objects
 
-@pytest.fixture
-def iris_data():
-    return load_iris(return_X_y=True)
+get_custom_objects().update({'NewtonOptimizer': NewtonOptimizer})
+# Bereite die Daten vor
+X, y = load_iris(return_X_y=True)
 
-def test_newton_optimizer_performance(benchmark, iris_data):
-    X, y = iris_data
+# Definiere eine Funktion zum Erstellen des Modells
+def create_model(optimizer):
+    model = Sequential([
+        Dense(10, input_shape=(4,), activation='tanh'),
+        Dense(10, activation='tanh'),
+        Dense(1, activation='linear')
+    ])
+    NewtonOptimizer()
+    model.compile(optimizer='NewtonOptimizer', loss='mse')
+    return model
 
-    def train_model():
-        model = Sequential([
-            Dense(10, input_shape=(4,), activation='tanh'),
-            Dense(10, activation='tanh'),
-            Dense(1, activation='linear')
-        ])
-        optimizer = NewtonOptimizer()
-        model.compile(optimizer=optimizer, loss='mse')
-        model.fit(X, y, epochs=10, verbose=0)
+# Benchmark-Funktion für NewtonOptimizer
+def benchmark_newton_optimizer(benchmark):
+    model = create_model(NewtonOptimizer())
+    benchmark(model.fit, X, y, epochs=10, verbose=0)
 
-    # Benchmark the training function
-    benchmark(train_model)
+# Benchmark-Funktion für SGD
+def benchmark_sgd_optimizer(benchmark):
+    model = create_model(SGD())
+    benchmark(model.fit, X, y, epochs=10, verbose=0)
