@@ -21,13 +21,3 @@ def create_model(optimizer):
     NewtonOptimizer()
     model.compile(optimizer='NewtonOptimizer', loss='mse')
     return model
-
-# Benchmark-Funktion für NewtonOptimizer
-def benchmark_newton_optimizer(benchmark):
-    model = create_model(NewtonOptimizer())
-    benchmark(model.fit, X, y, epochs=10, verbose=0)
-
-# Benchmark-Funktion für SGD
-def benchmark_sgd_optimizer(benchmark):
-    model = create_model(SGD())
-    benchmark(model.fit, X, y, epochs=10, verbose=0)
